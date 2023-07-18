@@ -1,5 +1,6 @@
 import streamlit as st
 import datetime
+from datetime import date
 
 FRINGE = 0.6524
 INDIRECT = 0.349
@@ -178,7 +179,7 @@ salary_schedule = [
     }]
 
 
-def get_salary(title, step, salary_schedule):
+def get_salary(title, step, salary_schedule, start_date):
     # Find the job in job_data based on the position title
     job_info = None
     for job in job_data:
@@ -192,6 +193,11 @@ def get_salary(title, step, salary_schedule):
     # Extract the schedule and grade from the job_info
     schedule = job_info[1]
     grade = job_info[2]
+
+    # Check if regrading is applicable
+    regrade_date = date(2025, 1, 1)
+    if start_date >= regrade_date and grade in ['6', '7']:
+        grade = '8'
 
     # Find the salary for the given grade and step
     salary_data = None
@@ -209,11 +215,12 @@ def get_salary(title, step, salary_schedule):
 
 
 # Function to return a list of salaries based on the number of years worked
-def get_salary_steps(position, years_worked, salary_schedule):
-    salaries_list = list()
-    for i in range(years_worked+1):
-        salaries_list.append(get_salary(
-            position, i, salary_schedule) * COLA_LIST[i])
+def get_salary_steps(position, years_worked, salary_schedule, start_date):
+    salaries_list = []
+    for i in range(years_worked + 1):
+        salary = get_salary(position, i, salary_schedule,
+                            start_date) * COLA_LIST[i]
+        salaries_list.append(salary)
     return salaries_list
 
 
@@ -250,7 +257,7 @@ def main():
     if st.button("Calculate Salaries"):
         years_worked = (grant_end_date - start_date).days // 365
         salaries = get_salary_steps(
-            position_name, years_worked, salary_schedule)
+            position_name, years_worked, salary_schedule, start_date)
 
         # Output the list of salaries
         st.write(
