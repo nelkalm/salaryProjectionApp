@@ -147,84 +147,35 @@ salary_schedule = {'B': {'01': [2165, 2233, 2344, 2451, 2571, 2692, 2848, 2984, 
     'G': {'01': [3831, 3949, 4145, 4341, 4559, 4803, 5028, 5292, 5600], '02': [4212, 4341, 4559, 4803, 5028, 5292, 5544, 5831, 6183], '03': [4659, 4803, 5028, 5292, 5544, 5831, 6116, 6421, 6818], '04': [5131, 5292, 5544, 5831, 6116, 6421, 6750, 7087, 7509], '05': [5655, 5831, 6116, 6421, 6750, 7087, 7434, 7817, 8290], '06': [6226, 6421, 6750, 7087, 7434, 7817, 8208, 8583, 9063], '07': [6875, 7087, 7434, 7817, 8208, 8583, 8971, 9375, 9886], '08': [7582, 7817, 8208, 8583, 8971, 9375, 9786, 10233, 10795], '09': [8323, 8583, 8971, 9375, 9786, 10233, 10688, 11169, 11802], '10': [9094, 9375, 9786, 10233, 10688, 11169, 11685, 12204, 12569]}}
 
 
-def get_monthly_salary(job_title, start_date, end_date):
-    # Helper function to find the salary for a specific grade and year of service
-    def find_salary(grade, year_of_service):
-        salary_steps = salary_schedule[job_code][grade]
-        return salary_steps[min(year_of_service, len(salary_steps) - 1)]
+def get_step_raises(position_title, job_data, salary_schedule):
+    for title, schedule, grade, step in job_data:
+        if title == position_title:
+            if schedule in salary_schedule and grade in salary_schedule[schedule]:
+                return salary_schedule[schedule][grade]
 
-    # Find the job data for the given job title
-    job_info = next((job for job in job_data if job[0] == job_title), None)
-    if not job_info:
+    return None
+
+
+def generate_monthly_salaries(position_title, start_date, end_date, job_data, salary_schedule):
+    step_raises = get_step_raises(position_title, job_data, salary_schedule)
+    if step_raises is None:
         return None
 
-    job_title, job_code, grade, _ = job_info
+    start_date = datetime.strptime(start_date, "%m/%d/%Y")
+    end_date = datetime.strptime(end_date, "%m/%d/%Y")
+    num_months = (end_date.year - start_date.year) * 12 + \
+        (end_date.month - start_date.month) + 1
 
-    # Convert start_date and end_date strings to datetime objects
-    start_date = datetime.strptime(start_date, '%m/%d/%Y')
-    end_date = datetime.strptime(end_date, '%m/%d/%Y')
+    monthly_salaries = []
+    step_raise_index = 0
 
-    # Calculate the year of service based on the start and end dates
-    year_of_service = end_date.year - start_date.year
-    if (end_date.month, end_date.day) < (start_date.month, start_date.day):
-        year_of_service -= 1
+    for i in range(num_months):
+        monthly_salaries.append(step_raises[step_raise_index])
 
-    # Calculate the monthly salary for each year of service within the given range
-    monthly_salaries = [find_salary(grade, 0)]  # Include year 0 separately
-    current_date = start_date
-    while current_date < end_date:
-        current_date = datetime(current_date.year + 1,
-                                current_date.month, current_date.day)
-        year_of_service += 1
-        monthly_salaries.append(find_salary(grade, year_of_service))
-
-    monthly_salaries.pop()
+        if (i + 1) % 12 == 0:
+            step_raise_index = (step_raise_index + 1) % len(step_raises)
 
     return monthly_salaries
-
-
-def get_monthly_salary_per_month(job_title, start_date, end_date):
-    # Get the monthly salaries using the get_monthly_salary function
-    monthly_salaries = get_monthly_salary(job_title, start_date, end_date)
-
-    # Convert start_date and end_date strings to datetime objects
-    start_date = datetime.strptime(start_date, '%m/%d/%Y')
-    end_date = datetime.strptime(end_date, '%m/%d/%Y')
-
-    # Initialize the result dictionary
-    monthly_salary_per_month = {}
-
-    # Initialize the year of service, current salary index, and month counter
-    year_of_service = 0
-    current_salary_index = 0
-
-    # Iterate through the range of months between start_date and end_date
-    current_date = start_date
-    while current_date <= end_date:
-        # Get the month and year as a string (e.g., "Jul 2023")
-        month_year_str = current_date.strftime("%b %Y")
-
-        # Assign the monthly salary for the current month
-        monthly_salary_per_month[month_year_str] = monthly_salaries[current_salary_index]
-
-        # Move to the next month
-        next_month = (current_date.month % 12) + 1
-        next_year = current_date.year if next_month != 1 else current_date.year + 1
-        current_date = current_date.replace(year=next_year, month=next_month)
-
-        # Increment the year of service
-        year_of_service += 1
-
-        # Check if 12 months have passed to move to the next salary step
-        if year_of_service >= 12:
-            year_of_service = 0
-            current_salary_index += 1
-
-        # Use the last available salary if the position has been held for more years than available in the salary schedule
-        if current_salary_index >= len(monthly_salaries):
-            current_salary_index = len(monthly_salaries) - 1
-
-    return monthly_salary_per_month
 
 
 if __name__ == '__main__':
@@ -236,5 +187,16 @@ if __name__ == '__main__':
     start_date2 = "1/1/2024"
     end_date2 = "12/31/2024"
 
-    print(get_monthly_salary_per_month(job_title1, start_date1, end_date1))
-    print(get_monthly_salary_per_month(job_title2, start_date2, end_date2))
+    step_raises = get_step_raises(job_title1, job_data, salary_schedule)
+    print(step_raises)
+    monthly_salaries = generate_monthly_salaries(
+        job_title1, start_date1, end_date1, job_data, salary_schedule)
+    print(monthly_salaries)
+
+    # print(get_monthly_salary_per_month(job_title1, start_date1, end_date1))
+    # print(calculate_annual_salary(job_title1, start_date1, end_date1))
+
+    # print()
+
+    # print(get_monthly_salary_per_month(job_title2, start_date2, end_date2))
+    # print(calculate_annual_salary(job_title2, start_date2, end_date2))
