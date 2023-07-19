@@ -1,6 +1,5 @@
 import streamlit as st
-import datetime
-from datetime import date
+from datetime import date, datetime
 
 FRINGE = 0.6524
 INDIRECT = 0.349
@@ -10,9 +9,7 @@ COLA25 = 1.05
 COLA26 = 1.05
 COLA27 = 1.0325
 COLA_LIST = [COLA23, COLA24, COLA25, COLA26, COLA27]
-MAX_DATE = datetime.date(2027, 12, 31)
-
-# from jobData import job_data
+# MAX_DATE = datetime.date(2027, 12, 31)
 
 job_data = [
     ("ADMIN SERVICES OFFICER I-EXCLUDED", "BX", "13", ""),
@@ -142,137 +139,52 @@ job_data = [
     ("WEB AUTHOR", "B", "15", "")
 ]
 
+salary_schedule = {'B': {'01': [2165, 2233, 2344, 2451, 2571, 2692, 2848, 2984, 3126], '02': [2272, 2344, 2451, 2571, 2692, 2818, 2984, 3126, 3276], '03': [2377, 2451, 2571, 2692, 2818, 2951, 3126, 3276, 3427], '04': [2610, 2692, 2818, 2951, 3093, 3239, 3427, 3591, 3764], '05': [2653, 2736, 2865, 3003, 3145, 3294, 3486, 3654, 3824], '06': [3000, 3093, 3239, 3393, 3550, 3726, 3939, 4124, 4324], '07': [3142, 3239, 3393, 3550, 3726, 3898, 4124, 4324, 4527], '08': [3291, 3393, 3550, 3726, 3898, 4083, 4324, 4527, 4739], '09': [3612, 3726, 3898, 4083, 4281, 4482, 4739, 4966, 5205], '10': [3961, 4083, 4281, 4482, 4694, 4917, 5205, 5449, 5713], '11': [4348, 4482, 4694, 4917, 5156, 5395, 5713, 5982, 6264], '12': [4770, 4917, 5156, 5395, 5656, 5921, 6264, 6567, 6875], '13': [5232, 5395, 5656, 5921, 6202, 6497, 6875, 7203, 7545], '14': [
+    5745, 5921, 6202, 6497, 6806, 7131, 7545, 7902, 8280], '15': [6302, 6497, 6806, 7131, 7470, 7823, 8280, 8665, 9083], '16': [6919, 7131, 7470, 7823, 8199, 8583, 9083, 9521, 9965], '17': [7587, 7823, 8199, 8583, 8992, 9422, 9965, 10441, 10936]},
 
-salary_schedule = [
-    {"schedule": "B", "data": {
-        '01': [25980, 26796, 28128, 29412, 30852, 32304, 34176, 35808, 37512, 39312, 41124, 43092, 45168],
-        '02': [27264, 28128, 29412, 30852, 32304, 33816, 35808, 37512, 39312, 41124, 43092, 45168, 47268],
-        '03': [28524, 29412, 30852, 32304, 33816, 35412, 37512, 39312, 41124, 43092, 45168, 47268, 49488],
-        '04': [31320, 32304, 33816, 35412, 37116, 38868, 41124, 43092, 45168, 47268, 49488, 51888, 54324],
-        '05': [31836, 32832, 34380, 36036, 37740, 39528, 41832, 43848, 45888, 48048, 50376, 52740, 55212],
-        '06': [36000, 37116, 38868, 40716, 42600, 44712, 47268, 49488, 51888, 54324, 56868, 59592, 62460],
-        '07': [37704, 38868, 40716, 42600, 44712, 46776, 49488, 51888, 54324, 56868, 59592, 62460, 65388],
-        '08': [39492, 40716, 42600, 44712, 46776, 48996, 51888, 54324, 56868, 59592, 62460, 65388, 68556],
-        '09': [43344, 44712, 46776, 48996, 51372, 53784, 56868, 59592, 62460, 65388, 68556, 71784, 75168],
-        '10': [47532, 48996, 51372, 53784, 56328, 59004, 62460, 65388, 68556, 71784, 75168, 78804, 82500],
-        '11': [52176, 53784, 56328, 59004, 61872, 64740, 68556, 71784, 75168, 78804, 82500, 86436, 90540],
-        '12': [57240, 59004, 61872, 64740, 67872, 71052, 75168, 78804, 82500, 86436, 90540, 94824, 99360],
-        '13': [62784, 64740, 67872, 71052, 74424, 77964, 82500, 86436, 90540, 94824, 99360, 103980, 108996],
-        '14': [68940, 71052, 74424, 77964, 81672, 85572, 90540, 94824, 99360, 103980, 108996, 114252, 119580],
-        '15': [75624, 77964, 81672, 85572, 89640, 93876, 99360, 103980, 108996, 114252, 119580, 125292, 131232],
-        '16': [83028, 85572, 89640, 93876, 98388, 102996, 108996, 114252, 119580, 125292, 131232, 137484, 143976],
-        '17': [91044, 93876, 98388, 102996, 107904, 113064, 119580, 125292, 131232, 137484, 143976, 150888, 157932]
-    }
-    },
-    {"schedule": "G", "data": {
-        '01': [45972, 47388, 49740, 52092, 54708, 57636, 60336, 63504, 67200],
-        '02': [50544, 52092, 54708, 57636, 60336, 63504, 66528, 69972, 74196],
-        '03': [55908, 57636, 60336, 63504, 66528, 69972, 73392, 77052, 81816],
-        '04': [61572, 63504, 66528, 69972, 73392, 77052, 81000, 85044, 90108],
-        '05': [67860, 69972, 73392, 77052, 81000, 85044, 89208, 93804, 99480],
-        '06': [74712, 77052, 81000, 85044, 89208, 93804, 98496, 102996, 108756],
-        '07': [82500, 85044, 89208, 93804, 98496, 102996, 107652, 112500, 118632],
-        '08': [90984, 93804, 98496, 102996, 107652, 112500, 117432, 122796, 129540],
-        '09': [99876, 102996, 107652, 112500, 117432, 122796, 128256, 134028, 141624],
-        '10': [109128, 112500, 117432, 122796, 128256, 134028, 140220, 146448, 150828]
-    }
-    }]
+    'G': {'01': [3831, 3949, 4145, 4341, 4559, 4803, 5028, 5292, 5600], '02': [4212, 4341, 4559, 4803, 5028, 5292, 5544, 5831, 6183], '03': [4659, 4803, 5028, 5292, 5544, 5831, 6116, 6421, 6818], '04': [5131, 5292, 5544, 5831, 6116, 6421, 6750, 7087, 7509], '05': [5655, 5831, 6116, 6421, 6750, 7087, 7434, 7817, 8290], '06': [6226, 6421, 6750, 7087, 7434, 7817, 8208, 8583, 9063], '07': [6875, 7087, 7434, 7817, 8208, 8583, 8971, 9375, 9886], '08': [7582, 7817, 8208, 8583, 8971, 9375, 9786, 10233, 10795], '09': [8323, 8583, 8971, 9375, 9786, 10233, 10688, 11169, 11802], '10': [9094, 9375, 9786, 10233, 10688, 11169, 11685, 12204, 12569]}}
 
 
-def get_salary(title, step, salary_schedule, start_date):
-    # Find the job in job_data based on the position title
-    job_info = None
-    for job in job_data:
-        if job[0] == title:
-            job_info = job
-            break
+def get_monthly_salary(job_title, start_date, end_date):
+    # Helper function to find the salary for a specific grade and year of service
+    def find_salary(grade, year_of_service):
+        salary_steps = salary_schedule[job_code][grade]
+        return salary_steps[min(year_of_service, len(salary_steps) - 1)]
 
-    if job_info is None:
-        return None  # Job title not found
+    # Find the job data for the given job title
+    job_info = next((job for job in job_data if job[0] == job_title), None)
+    if not job_info:
+        return None
 
-    # Extract the schedule and grade from the job_info
-    schedule = job_info[1]
-    grade = job_info[2]
+    job_title, job_code, grade, _ = job_info
 
-    # Check if regrading is applicable
-    regrade_date = date(2025, 1, 1)
-    if start_date >= regrade_date and grade in ['6', '7']:
-        grade = '8'
+    # Convert start_date and end_date strings to datetime objects
+    start_date = datetime.strptime(start_date, '%m/%d/%Y')
+    end_date = datetime.strptime(end_date, '%m/%d/%Y')
 
-    # Find the salary for the given grade and step
-    salary_data = None
-    for data in salary_schedule:
-        if data['schedule'] == schedule:
-            salary_data = data['data']
-            break
+    # Calculate the year of service based on the start and end dates
+    year_of_service = end_date.year - start_date.year
+    if (end_date.month, end_date.day) < (start_date.month, start_date.day):
+        year_of_service -= 1
 
-    if salary_data is None or grade not in salary_data or step >= len(salary_data[grade]):
-        return None  # Invalid grade or step
+    # Calculate the monthly salary for each year of service within the given range
+    monthly_salaries = [find_salary(grade, 0)]  # Include year 0 separately
+    current_date = start_date
+    while current_date < end_date:
+        current_date = datetime(current_date.year + 1,
+                                current_date.month, current_date.day)
+        year_of_service += 1
+        monthly_salaries.append(find_salary(grade, year_of_service))
 
-    salary = salary_data[grade][step]
+    monthly_salaries.pop()
 
-    return salary
-
-
-# Function to return a list of salaries based on the number of years worked
-def get_salary_steps(position, years_worked, salary_schedule, start_date):
-    salaries_list = []
-    for i in range(years_worked + 1):
-        salary = get_salary(position, i, salary_schedule,
-                            start_date) * COLA_LIST[i]
-        salaries_list.append(salary)
-    return salaries_list
+    return monthly_salaries
 
 
-# Function to calculate average annual salary, average annual fringe, average annual indirect
-def calculate_average_annuals(salaries_list):
-    total_salary = sum(salaries_list)
-    num_years = len(salaries_list)
-    average_salary = total_salary / num_years
-    average_fringe = average_salary * FRINGE
-    average_indirect = average_salary * INDIRECT
-    return average_salary, average_fringe, average_indirect
+if __name__ == '__main__':
+    job_title = "GRANTS RESEARCH SPECIALIST"
+    start_date = "07/01/2023"
+    end_date = "06/30/2025"
 
-
-def format_currency(amount):
-    return "${:,.2f}".format(amount)
-
-
-# Get the position names from job_data
-position_names = [position[0] for position in job_data]
-
-# Streamlit app
-
-
-def main():
-    st.title("Salary Projection App")
-    st.write("Enter the required information below:")
-
-    # Input fields
-    person_name = st.text_input("Person's Name")
-    position_name = st.selectbox("Position Name", position_names)
-    start_date = st.date_input("Start Date")
-    grant_end_date = st.date_input("End Date", max_value=MAX_DATE)
-
-    if st.button("Calculate Salaries"):
-        years_worked = (grant_end_date - start_date).days // 365
-        salaries = get_salary_steps(
-            position_name, years_worked, salary_schedule, start_date)
-
-        # Output the list of salaries
-        st.write(
-            f"Salaries for {position_name} over {years_worked} years:")
-        for i, salary in enumerate(salaries):
-            st.write(f"Year {i}: {format_currency(salary)}")
-
-        average_salary, average_fringe, average_indirect = calculate_average_annuals(
-            salaries)
-
-        st.write(f"Average annual salary: {format_currency(average_salary)}")
-        st.write(f"Average annual fringe: {format_currency(average_fringe)}")
-        st.write(
-            f"Average annual indirect: {format_currency(average_indirect)}")
-
-
-if __name__ == "__main__":
-    main()
+    monthly_salaries = get_monthly_salary(job_title, start_date, end_date)
+    print(monthly_salaries)
