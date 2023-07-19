@@ -1,5 +1,7 @@
 import streamlit as st
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+from dateutil.relativedelta import relativedelta
+
 
 FRINGE = 0.6524
 INDIRECT = 0.349
@@ -181,10 +183,58 @@ def get_monthly_salary(job_title, start_date, end_date):
     return monthly_salaries
 
 
-if __name__ == '__main__':
-    job_title = "GRANTS RESEARCH SPECIALIST"
-    start_date = "07/01/2023"
-    end_date = "06/30/2025"
-
+def get_monthly_salary_per_month(job_title, start_date, end_date):
+    # Get the monthly salaries using the get_monthly_salary function
     monthly_salaries = get_monthly_salary(job_title, start_date, end_date)
-    print(monthly_salaries)
+
+    # Convert start_date and end_date strings to datetime objects
+    start_date = datetime.strptime(start_date, '%m/%d/%Y')
+    end_date = datetime.strptime(end_date, '%m/%d/%Y')
+
+    # Initialize the result dictionary
+    monthly_salary_per_month = {}
+
+    # Initialize the year of service, current salary index, and month counter
+    year_of_service = 0
+    current_salary_index = 0
+
+    # Iterate through the range of months between start_date and end_date
+    current_date = start_date
+    while current_date <= end_date:
+        # Get the month and year as a string (e.g., "Jul 2023")
+        month_year_str = current_date.strftime("%b %Y")
+
+        # Assign the monthly salary for the current month
+        monthly_salary_per_month[month_year_str] = monthly_salaries[current_salary_index]
+
+        # Move to the next month
+        next_month = (current_date.month % 12) + 1
+        next_year = current_date.year if next_month != 1 else current_date.year + 1
+        current_date = current_date.replace(year=next_year, month=next_month)
+
+        # Increment the year of service
+        year_of_service += 1
+
+        # Check if 12 months have passed to move to the next salary step
+        if year_of_service >= 12:
+            year_of_service = 0
+            current_salary_index += 1
+
+        # Use the last available salary if the position has been held for more years than available in the salary schedule
+        if current_salary_index >= len(monthly_salaries):
+            current_salary_index = len(monthly_salaries) - 1
+
+    return monthly_salary_per_month
+
+
+if __name__ == '__main__':
+    job_title1 = "GRANTS RESEARCH SPECIALIST"
+    start_date1 = "7/1/2023"
+    end_date1 = "6/30/2025"
+
+    job_title2 = "ENVIRONMENTAL INVESTIGATOR"
+    start_date2 = "1/1/2024"
+    end_date2 = "12/31/2024"
+
+    print(get_monthly_salary_per_month(job_title1, start_date1, end_date1))
+    print(get_monthly_salary_per_month(job_title2, start_date2, end_date2))
