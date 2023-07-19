@@ -156,26 +156,38 @@ def get_step_raises(position_title, job_data, salary_schedule):
     return None
 
 
-def generate_monthly_salaries(position_title, start_date, end_date, job_data, salary_schedule):
+def calculate_total_salary(position_title, start_date, end_date, job_data, salary_schedule):
     step_raises = get_step_raises(position_title, job_data, salary_schedule)
     if step_raises is None:
-        return None
+        raise ValueError("Position title not found in the job data.")
 
     start_date = datetime.strptime(start_date, "%m/%d/%Y")
     end_date = datetime.strptime(end_date, "%m/%d/%Y")
-    num_months = (end_date.year - start_date.year) * 12 + \
-        (end_date.month - start_date.month) + 1
 
-    monthly_salaries = []
-    step_raise_index = 0
+    total_salary = 0
+    index = 0
+    while start_date < end_date:
+        salary_per_step = step_raises[index]
 
-    for i in range(num_months):
-        monthly_salaries.append(step_raises[step_raise_index])
+        # Apply the policy change to schedules B and G
+        if step_raises == salary_schedule['B'] or step_raises == salary_schedule['G']:
+            days_in_step = 180  # 6 months
+        else:
+            days_in_step = 365  # 1 year
 
-        if (i + 1) % 12 == 0:
-            step_raise_index = (step_raise_index + 1) % len(step_raises)
+        if start_date + timedelta(days=days_in_step) <= end_date:
+            total_salary += salary_per_step * days_in_step / 30  # Assuming 30 days per month
+            start_date += timedelta(days=days_in_step)
+        else:
+            remaining_days = (end_date - start_date).days
+            total_salary += salary_per_step * remaining_days / 30
+            break
 
-    return monthly_salaries
+        index += 1
+        if index >= len(step_raises):
+            index = len(step_raises) - 1
+
+    return total_salary
 
 
 if __name__ == '__main__':
@@ -187,16 +199,12 @@ if __name__ == '__main__':
     start_date2 = "1/1/2024"
     end_date2 = "12/31/2024"
 
-    step_raises = get_step_raises(job_title1, job_data, salary_schedule)
-    print(step_raises)
-    monthly_salaries = generate_monthly_salaries(
+    total_salary1 = calculate_total_salary(
         job_title1, start_date1, end_date1, job_data, salary_schedule)
-    print(monthly_salaries)
+    print(
+        f"Total salary for {job_title1} from {start_date1} to {end_date1}: {total_salary1}")
 
-    # print(get_monthly_salary_per_month(job_title1, start_date1, end_date1))
-    # print(calculate_annual_salary(job_title1, start_date1, end_date1))
-
-    # print()
-
-    # print(get_monthly_salary_per_month(job_title2, start_date2, end_date2))
-    # print(calculate_annual_salary(job_title2, start_date2, end_date2))
+    total_salary2 = calculate_total_salary(
+        job_title2, start_date2, end_date2, job_data, salary_schedule)
+    print(
+        f"Total salary for {job_title2} from {start_date2} to {end_date2}: {total_salary2}")
