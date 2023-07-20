@@ -151,49 +151,70 @@ def get_step_raises(position_title, job_data, salary_schedule):
     for title, schedule, grade, step in job_data:
         if title == position_title:
             if schedule in salary_schedule and grade in salary_schedule[schedule]:
-                return salary_schedule[schedule][grade]
+                return schedule, grade, step  # Return schedule, grade, and step as a tuple
 
-    return None
+    return None, None, None  # Return None for schedule, grade, and step if not found
 
 
 def calculate_total_salary(position_title, start_date, end_date, job_data, salary_schedule):
-    step_raises = get_step_raises(position_title, job_data, salary_schedule)
-    if step_raises is None:
-        raise ValueError("Position title not found in the job data.")
-
-    start_date = datetime.strptime(start_date, "%m/%d/%Y")
-    end_date = datetime.strptime(end_date, "%m/%d/%Y")
+    schedule, grade, step = get_step_raises(
+        position_title, job_data, salary_schedule)
+    if schedule is None or grade is None:
+        return None
 
     total_salary = 0
-    index = 0
-    while start_date < end_date:
-        salary_per_step = step_raises[index]
+    current_date = datetime.strptime(start_date, "%m/%d/%Y")
+    end_date = datetime.strptime(end_date, "%m/%d/%Y")
 
-        # Apply the policy change to schedules B and G
-        if step_raises == salary_schedule['B'] or step_raises == salary_schedule['G']:
-            days_in_step = 180  # 6 months
-        else:
-            days_in_step = 365  # 1 year
+    # Define the initial index and COLA percentage
+    index = int(step) - 1 if step else 0
+    cola_percentage = 1.0
 
-        if start_date + timedelta(days=days_in_step) <= end_date:
-            total_salary += salary_per_step * days_in_step / 30  # Assuming 30 days per month
-            start_date += timedelta(days=days_in_step)
-        else:
-            remaining_days = (end_date - start_date).days
-            total_salary += salary_per_step * remaining_days / 30
-            break
+    while current_date <= end_date:
+        # Determine the index based on the grade and step
+        index = int(step) - 1 if step else 0
 
-        index += 1
-        if index >= len(step_raises):
-            index = len(step_raises) - 1
+        # Apply regrade policy from 1/1/2025 for grades 06 and 07
+        if current_date >= datetime(2025, 1, 1) and grade in ["06", "07"]:
+            grade = "08"
+            # Use the same index for grade 08 as grade 07
+            index = int(step) - 1 if step else 0
 
-    return total_salary
+        # Calculate the first day of the next month
+        next_month = current_date.replace(day=28) + timedelta(days=4)
+        next_month = next_month.replace(day=1)
+
+        # Calculate the number of days in the current month
+        days_in_current_month = min(
+            (next_month - current_date).days, (end_date - current_date).days + 1)
+
+        # Calculate monthly salary based on the index and schedule with the COLA adjustment
+        monthly_salary = salary_schedule[schedule][grade][index] * \
+            cola_percentage
+
+        # Add monthly salary for the current month
+        total_salary += monthly_salary * (days_in_current_month / 30)
+
+        # Move to the next month
+        current_date = next_month
+
+        # Update the COLA percentage for the next year if applicable
+        if current_date.year - datetime.strptime(start_date, "%m/%d/%Y").year < len(COLA_LIST):
+            cola_percentage *= COLA_LIST[current_date.year -
+                                         datetime.strptime(start_date, "%m/%d/%Y").year]
+
+        # Update step_raises if current_date is still within the period
+        if current_date <= end_date:
+            schedule, grade, step = get_step_raises(
+                position_title, job_data, salary_schedule)
+
+    return round(total_salary, 2)
 
 
 if __name__ == '__main__':
     job_title1 = "GRANTS RESEARCH SPECIALIST"
     start_date1 = "7/1/2023"
-    end_date1 = "6/30/2025"
+    end_date1 = "12/31/2024"
 
     job_title2 = "ENVIRONMENTAL INVESTIGATOR"
     start_date2 = "1/1/2024"
@@ -201,10 +222,8 @@ if __name__ == '__main__':
 
     total_salary1 = calculate_total_salary(
         job_title1, start_date1, end_date1, job_data, salary_schedule)
-    print(
-        f"Total salary for {job_title1} from {start_date1} to {end_date1}: {total_salary1}")
+    print("Total salary for GRANTS RESEARCH SPECIALIST:", total_salary1)
 
     total_salary2 = calculate_total_salary(
         job_title2, start_date2, end_date2, job_data, salary_schedule)
-    print(
-        f"Total salary for {job_title2} from {start_date2} to {end_date2}: {total_salary2}")
+    print("Total salary for ENVIRONMENTAL INVESTIGATOR:", total_salary2)
