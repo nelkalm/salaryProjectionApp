@@ -230,7 +230,7 @@ def calculate_average_annuals(salaries_list):
     num_years = len(salaries_list)
     average_salary = total_salary / num_years
     average_fringe = average_salary * FRINGE
-    average_indirect = average_salary * INDIRECT
+    average_indirect = (average_salary + average_fringe) * INDIRECT
     return average_salary, average_fringe, average_indirect
 
 
