@@ -304,6 +304,9 @@ class Personnel:
         self.start_date = datetime.strptime(start_date, '%m/%d/%Y')
         self.end_date = datetime.strptime(end_date, '%m/%d/%Y')
         self.salary_steps = self.generate_salary_steps()
+        self.salary_table = self.generate_hash_table()
+        self.eligible_for_regrade = self.check_eligible_for_regrade()
+        self.regrade_date = None
 
     def generate_salary_steps(self):
         # Initialize the salary steps with step 0
@@ -337,18 +340,30 @@ class Personnel:
 
         return hash_table
 
-    def regrade_to_grade_8(self, regrade_date):
-        regrade_date = datetime.strptime(regrade_date, '%m/%d/%Y')
-        if self.grade in ["06", "07"] and regrade_date >= datetime(2025, 1, 1):
-            self.grade = "08"
+    def check_eligible_for_regrade(self):
+        return self.grade in ["06", "07"]
+
+    def regrade(self):
+        if self.eligible_for_regrade:
+            self.regrade_date = datetime(2025, 1, 1)
 
 
 # Example usage:
 personnel = Personnel("EPIDEMIOLOGIST II", "07", "G",
                       0, "8/1/2023", "7/31/2027")
 
-# Simulate the regrading policy in January 2025
-personnel.regrade_to_grade_8("1/1/2025")
+print(personnel.position_name)
+print(personnel.grade)
+print(personnel.schedule)
+print(personnel.step)
+print(personnel.start_date)
+print(personnel.end_date)
+print(personnel.salary_steps)
+print(personnel.salary_table)
 
-# Output the updated grade
-print("Updated Grade:", personnel.grade)
+print("Eligible for regrade:", personnel.eligible_for_regrade)
+
+# Check if eligible for regrade and set the regrade_date
+personnel.regrade()
+if personnel.regrade_date is not None:
+    print("Regrade date:", personnel.regrade_date.strftime('%m/%d/%Y'))
