@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+
 
 job_data = [
     ("ADMIN SERVICES OFFICER I-EXCLUDED", "BX", "13", ""),
@@ -294,70 +296,59 @@ salary_schedule = [
 
 
 class Personnel:
-    def __init__(self, position, start_date, end_date):
-        self.position = position
-        self.start_date = datetime.strptime(start_date, "%Y-%m-%d")
-        self.end_date = datetime.strptime(end_date, "%Y-%m-%d")
-        self.months_table = self.generate_months_table()
-        self.grades, self.schedules = self.retrieve_job_info()
-        self.monthly_salaries = self.retrieve_monthly_salaries()
+    def __init__(self, position_name, grade, schedule, step, start_date, end_date):
+        self.position_name = position_name
+        self.grade = grade
+        self.schedule = schedule
+        self.step = step
+        self.start_date = datetime.strptime(start_date, '%m/%d/%Y')
+        self.end_date = datetime.strptime(end_date, '%m/%d/%Y')
+        self.salary_steps = self.generate_salary_steps()
 
-    def generate_months_table(self):
-        months_table = {}
+    def generate_salary_steps(self):
+        # Initialize the salary steps with step 0
+        salary_steps = [{"step": 0, "date": self.start_date}]
+
+        # Determine the first eligible step increase date (6 months after the start date)
+        next_step_date = self.start_date + relativedelta(months=6)
+
+        # Keep adding step increase dates until the end date is reached
+        while next_step_date < self.end_date:
+            salary_steps.append(
+                {"step": len(salary_steps), "date": next_step_date})
+            # Increase step date by 12 months for subsequent steps
+            next_step_date += relativedelta(years=1)
+
+        return salary_steps
+
+    def generate_hash_table(self):
+        hash_table = {}
         current_date = self.start_date
-        while current_date <= self.end_date:
-            year_month_key = current_date.strftime("%Y-%m")
-            months_table[year_month_key] = []
-            current_date += timedelta(days=32)  # Move to the next month
-            # Set the day to the first day of the month
-            current_date = current_date.replace(day=1)
-        return months_table
 
-    def retrieve_job_info(self):
-        for job_info in job_data:
-            position, code, level, schedule = job_info
-            if self.position == position:
-                return level, code
-        return None, None
+        while current_date < self.end_date:
+            month_year = current_date.strftime('%B %Y')
+            hash_table[month_year] = []
+            # Add one month to the current date
+            if current_date.month == 12:
+                current_date = datetime(current_date.year + 1, 1, 1)
+            else:
+                current_date = datetime(
+                    current_date.year, current_date.month + 1, 1)
 
-    def retrieve_monthly_salaries(self):
-        grade, schedule = self.grades, self.schedules
-        if schedule in salary_schedule and grade in salary_schedule[schedule]:
-            return salary_schedule[schedule][grade]
-        else:
-            return None
+        return hash_table
 
-    def populate_salaries_in_table(self):
-        if self.monthly_salaries:
-            total_months = (self.end_date.year - self.start_date.year) * \
-                12 + (self.end_date.month - self.start_date.month) + 1
-            for i, year_month_key in enumerate(self.months_table.keys()):
-                year = i // 12
-                monthly_salary = self.monthly_salaries[year % len(
-                    self.monthly_salaries)]
-                self.months_table[year_month_key] = [
-                    monthly_salary] * len(self.months_table[year_month_key])
-
-    def display_table(self):
-        for key, value in self.months_table.items():
-            print(key, ":", value)
-
-    def display_salary_info(self):
-        if self.monthly_salaries:
-            print(
-                f"Monthly Salaries for Grade {self.grades} in Schedule {self.schedules}:")
-            for i, salary in enumerate(self.monthly_salaries, 1):
-                print(f"Month {i}: ${salary:.2f}")
-        else:
-            print(
-                f"Salary information not found for Grade {self.grades} in Schedule {self.schedules}.")
+    def regrade_to_grade_8(self, regrade_date):
+        regrade_date = datetime.strptime(regrade_date, '%m/%d/%Y')
+        if self.grade in ["06", "07"] and regrade_date >= datetime(2025, 1, 1):
+            self.grade = "08"
 
 
 # Example usage:
-person = Personnel("DATA BASE ANALYST", "2023-01-15", "2025-07-26")
-print("Position:", person.position)
-print("Grades:", person.grades)
-print("Schedules:", person.schedules)
-person.populate_salaries_in_table()
-person.display_table()
-person.display_salary_info()
+personnel = Personnel("EPIDEMIOLOGIST II", "07", "G",
+                      0, "8/1/2023", "7/31/2027")
+
+# Simulate the regrading policy in January 2025
+personnel.regrade_to_grade_8("1/1/2025")
+
+# Output the updated grade
+print("Updated Grade:", personnel.grade)
