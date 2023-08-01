@@ -289,3 +289,21 @@ salary_schedule = [
         }
     }
     }]
+
+
+salary_data = {}
+
+# assuming salary_schedule is your original list of dictionaries
+for schedule in salary_schedule:
+    schedule_name = schedule["schedule"]
+    schedule_data = schedule["data"]
+    if schedule_name not in salary_data:
+        salary_data[schedule_name] = {}
+    for year, grades in schedule_data.items():
+        if year not in salary_data[schedule_name]:
+            salary_data[schedule_name][year] = {}
+        for grade, steps in grades.items():
+            salary_data[schedule_name][year][grade] = steps
+
+# Now you can access your salary data like this:
+print(salary_data)
