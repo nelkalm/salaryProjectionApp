@@ -509,7 +509,7 @@ st.title("Salary Projection App")
 
 st.sidebar.write("""
 ## About this app
-Created by [**Nelson Lu**], Grant Research Specialist, City of Chicago's Department of Public Health.
+Created by **Nelson Lu**, Grants Research Specialist, City of Chicago's Department of Public Health.
 For more information, questions, or comments, please feel free to contact me [here](mailto:Nelson.Lu@cityofchicago.org).
 
 [LinkedIn](https://www.linkedin.com/in/nelson-lu-075a6b53/) | [GitHub](https://github.com/nelkalm)
