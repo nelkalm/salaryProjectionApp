@@ -525,18 +525,20 @@ This app is used to calculate salary details including Total Salary, Total Fring
 Please note that if the chosen job position is eligible for a regrade, the application will automatically perform the regrade operation. For the purpose of this application, regrade is applicable for grades '06' and '07' and the regrade is assumed to occur on January 1, 2025, upgrading the grade to '08'. This regrade operation will be reflected in the salary calculations.
 """)
 
-titles = [job[0] for job in job_data]
-selected_job = st.selectbox(
-    "Select Job Title (works only on schedules B and G)", titles)
-start_date = st.date_input("Select Start Date").strftime('%m/%d/%Y')
-end_date = st.date_input("Select End Date").strftime('%m/%d/%Y')
+col1, col2 = st.columns(2, gap="large")
 
-# Add input fields for fringe and indirect rates
-fringe_rate = st.number_input(
-    "Enter fringe rate (default = 0.6524)", min_value=0.0, max_value=1.0, value=0.6524, step=0.0001)
-indirect_rate = st.number_input(
-    "Enter indirect rate (default = 0.349)", min_value=0.0, max_value=1.0, value=0.349, step=0.0001)
+with col1:
+    titles = [job[0] for job in job_data]
+    selected_job = st.selectbox(
+        "Select Job Title (works only on schedules B and G)", titles)
+    start_date = st.date_input("Select Start Date").strftime('%m/%d/%Y')
+    end_date = st.date_input("Select End Date").strftime('%m/%d/%Y')
 
+    # Add input fields for fringe and indirect rates
+    fringe_rate = st.number_input(
+        "Enter fringe rate (default = 0.6524)", min_value=0.0, max_value=1.0, value=0.6524, step=0.0001)
+    indirect_rate = st.number_input(
+        "Enter indirect rate (default = 0.349)", min_value=0.0, max_value=1.0, value=0.349, step=0.0001)
 
 if st.button("Calculate Salary Details"):
     schedule, grade, step = get_job_details(job_data, selected_job)
@@ -546,13 +548,17 @@ if st.button("Calculate Salary Details"):
     personnel.populate_salary_table(salary_schedule)
 
     st.write(f"Schedule: {personnel.schedule}")
-    st.write(f"Grade: {personnel.grade}")
+    st.write(f"Initial Grade: {personnel.grade}")
 
     st.subheader('Monthly Salary Table')
     monthly_salary_table = pd.DataFrame.from_dict(personnel.salary_table, orient='index',
                                                   columns=['Monthly Salary', 'Schedule', 'Grade', 'Step'])
     monthly_salary_table.reset_index(inplace=True)
 
-    sum_annual_salaries = compute_and_display_salaries(monthly_salary_table)
-    display_salary_details(sum_annual_salaries,
-                           monthly_salary_table, fringe_rate, indirect_rate)
+    sum_annual_salaries = compute_and_display_salaries(
+        monthly_salary_table)
+
+    with col2:
+        st.subheader("Result")
+        display_salary_details(sum_annual_salaries,
+                               monthly_salary_table, fringe_rate, indirect_rate)
