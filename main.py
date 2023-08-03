@@ -514,7 +514,7 @@ For more information, questions, or comments, please feel free to contact me [he
 
 [LinkedIn](https://www.linkedin.com/in/nelson-lu-075a6b53/) | [GitHub](https://github.com/nelkalm)
 
-This app used to calculate salary details including Total Salary, Total Fringe, Total Indirect, and Total Cost for a specific job position over a certain period of time. The app also displays the Monthly Salary Table which contains the monthly salary, schedule, grade, and step for each month within the specified period. Furthermore, it provides a feature to dynamically calculate fringe and indirect rates based on user input.
+This app is used to calculate salary details including Total Salary, Total Fringe, Total Indirect, and Total Cost for a specific job position over a certain period of time. The app also displays the Monthly Salary Table which contains the monthly salary, schedule, grade, and step for each month within the specified period. Furthermore, it provides a feature to dynamically calculate fringe and indirect rates based on user input.
 **NOTE: This app currently only works for schedules B and G.**
 
 ## How to use
