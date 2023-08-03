@@ -287,6 +287,31 @@ salary_schedule = {
             '09': [117102.73, 120760.87, 126219.94, 131904.13, 137686.81, 143976.0, 150377.75, 157145.31, 166051.48],
             '10': [127950.53, 131904.13, 137686.81, 143976.0, 150377.75, 157145.31, 164405.31, 171707.52, 176842.99]
         }
+    },
+    'BX': {
+        '2023': {
+            '01': [21912, 23016, 24060, 25212, 26412, 27960, 29280, 30672, 32136, 33636, 35244, 36924],
+            '02': [23016, 24060, 25212, 26412, 27660, 29280, 30672, 32136, 33636, 35244, 36924, 38664],
+            '03': [24060, 25212, 26412, 27660, 28956, 30672, 32136, 33636, 35244, 36924, 38664, 40476],
+            '04': [26412, 27660, 28956, 30360, 31800, 33636, 35244, 36924, 38664, 40476, 42444, 44424],
+            '05': [27660, 28956, 30360, 31800, 33300, 35244, 36924, 38664, 40476, 42444, 44424, 46500],
+            '06': [30360, 31800, 33300, 34860, 36564, 38664, 40476, 42444, 44424, 46500, 48720, 51096],
+            '07': [31800, 33300, 34860, 36564, 38256, 40476, 42444, 44424, 46500, 48720, 51096, 53460],
+            '08': [33300, 34860, 36564, 38256, 40080, 42444, 44424, 46500, 48720, 51096, 53460, 56064],
+            '09': [36564, 38256, 40080, 42024, 43980, 46500, 48720, 51096, 53460, 56064, 58692, 61476],
+            '10': [40080, 42024, 43980, 46056, 48240, 51096, 53460, 56064, 58692, 61476, 64428, 67464],
+            '11': [43980, 46056, 48240, 50592, 52956, 56064, 58692, 61476, 64428, 67464, 70704, 74052],
+            '12': [48240, 50592, 52956, 55512, 58116, 61476, 64428, 67464, 70704, 74052, 76356, 78672],
+            '13': [52956, 55512, 58116, 60876, 63780, 67464, 70704, 74052, 76356, 78672, 82368, 86328],
+            '14': [58116, 60876, 63780, 66804, 69984, 74052, 76356, 78672, 82368, 86328, 90444, 94704],
+            '15': [63780, 66804, 69984, 73332, 75996, 78672, 82368, 86328, 90444, 94704, 99228, 103920],
+            '16': [69984, 73332, 75996, 77892, 81552, 86328, 90444, 94704, 99228, 103920, 108864, 114012],
+            '17': [75996, 77892, 81552, 85452, 89532, 94704, 99228, 103920, 108864, 114012, 119436, 125088],
+            '18': [81552, 85452, 89532, 93756, 98220, 103920, 108864, 114012, 119436, 125088, 131064, 131064],
+            '19': [89532, 93756, 98220, 103920, 108864, 114012, 119436, 125088, 131064, 131064, 131064, 131064],
+            '20': [93756, 98220, 102900, 107784, 114012, 119436, 125088, 131064, 131064, 131064, 131064, 131064],
+            '21': [98220, 102900, 107784, 112884, 118248, 125088, 131064, 131064, 131064, 131064, 131064, 131064]
+        }
     }
 }
 
@@ -410,9 +435,6 @@ class Personnel:
         return round(indirect_cost, 2)
 
 
-st.title("Salary Projection App")
-
-
 def get_job_details(job_data, position_title):
     for job in job_data:
         if job[0] == position_title:
@@ -434,103 +456,103 @@ def create_personnel(job):
     return personnel
 
 
-# Extract all titles
-titles = [job[0] for job in job_data]
-
-# Create a form
-# Use selectbox instead of text_input
-selected_job = st.selectbox("Select Job Title", titles)
-start_date = st.date_input("Select Start Date").strftime('%m/%d/%Y')
-end_date = st.date_input("Select End Date").strftime('%m/%d/%Y')
-
-if st.button("Calculate Salary Details"):
-
-    schedule, grade, step = get_job_details(job_data, selected_job)
-    # st.write(grade, schedule, step)
-
-    personnel = Personnel(selected_job, grade, schedule,
-                          -1, start_date, end_date)
-    personnel.regrade()
-    # if personnel.regrade_date is not None:
-    #     print("Regrade date:", personnel.regrade_date.strftime('%m/%d/%Y'))
-
-    personnel.populate_salary_table(salary_schedule)
-
-    st.write(f"Schedule: {personnel.schedule}")
-    st.write(f"Grade: {personnel.grade}")
-
-    st.subheader('Monthly Salary Table')
-    # st.dataframe(personnel.salary_table)
-    # Convert the dictionary into a DataFrame
-    monthly_salary_table = pd.DataFrame.from_dict(personnel.salary_table, orient='index',
-                                                  columns=['Monthly Salary', 'Schedule', 'Grade', 'Step'])
-
-    # reset index to have a numeric one for iloc to work correctly
-    monthly_salary_table.reset_index(inplace=True)
-
-    # Determine the number of chunks to split the DataFrame into
+def compute_and_display_salaries(monthly_salary_table):
     num_chunks = len(monthly_salary_table) // 12
     if len(monthly_salary_table) % 12 != 0:
         num_chunks += 1
 
     sum_annual_salaries = []
 
-    # Split the DataFrame into chunks and display each one
     for i in range(num_chunks):
         start_index = i * 12
         end_index = start_index + 12
         chunk = monthly_salary_table.iloc[start_index:end_index]
         st.dataframe(chunk)
 
-        # Compute and display the sum of monthly salaries for each chunk
         sum_annual_salary = chunk['Monthly Salary'].sum()
         st.write(
             f"Sum of Monthly Salaries for this period: ${sum_annual_salary:,.2f}")
-        # Append the sum of the annual salary to the list
         sum_annual_salaries.append(round(sum_annual_salary, 2))
+
         st.text("")  # add an empty line for spacing
 
-    # Calculate total salaries
+    return sum_annual_salaries
+
+
+def display_salary_details(sum_annual_salaries, monthly_salary_table, fringe_rate, indirect_rate):
     total_salary = sum(sum_annual_salaries)
+    total_fringe = total_salary * fringe_rate
+    total_indirect = (total_salary + total_fringe) * indirect_rate
+    total_cost = total_salary + total_fringe + total_indirect
 
-    # Calculate average annual salary based on the number of months
     average_annual_salary = total_salary / (len(monthly_salary_table) / 12)
-    average_annual_fringe = average_annual_salary * 0.6524
+    average_annual_fringe = average_annual_salary * fringe_rate
     average_annual_indirect = (
-        average_annual_salary + average_annual_fringe) * 0.349
+        average_annual_salary + average_annual_fringe) * indirect_rate
 
-    # Display the results
     st.write(f"Total Salary: ${total_salary:,.2f}")
+    st.write(f"Total Fringe at {fringe_rate * 100}%: ${total_fringe:,.2f}")
+    st.write(
+        f"Total Indirect at {indirect_rate * 100}%: ${total_indirect:,.2f}")
+    st.write(f"Total Cost for this position: ${total_cost:,.2f}")
+
+    st.write("----------------")
+
     st.write(f"Average Annual Salary: ${average_annual_salary:,.2f}")
-    st.write(f"Average Annual Fringe: ${average_annual_fringe:,.2f}")
-    st.write(f"Average Annual Indirect: ${average_annual_indirect:,.2f}")
+    st.write(
+        f"Average Annual Fringe at {fringe_rate * 100}%: ${average_annual_fringe:,.2f}")
+    st.write(
+        f"Average Annual Indirect at {indirect_rate * 100}%: ${average_annual_indirect:,.2f}")
 
 
-# # Example usage:
-# # # STEPS NEED TO START AT -1!!!
-# personnel = Personnel("PUBLIC HEALTH ADMINISTRATOR II", "16", "B",
-#                       -1, "8/1/2023", "7/31/2027")
+st.title("Salary Projection App")
 
-# print(personnel.position_name)
-# print(personnel.grade)
-# print(personnel.schedule)
-# print(personnel.step)
-# print(personnel.start_date)
-# print(personnel.end_date)
-# print(personnel.salary_steps)
-# print(personnel.salary_table)
+st.sidebar.write("""
+## About this app
+Created by [**Nelson Lu**], Grant Research Specialist, City of Chicago's Department of Public Health.
+For more information, questions, or comments, please feel free to contact me [here](mailto:Nelson.Lu@cityofchicago.org).
 
-# print("Eligible for regrade:", personnel.eligible_for_regrade)
+[LinkedIn](https://www.linkedin.com/in/nelson-lu-075a6b53/) | [GitHub](https://github.com/nelkalm)
 
-# # Check if eligible for regrade and set the regrade_date
-# personnel.regrade()
-# if personnel.regrade_date is not None:
-#     print("Regrade date:", personnel.regrade_date.strftime('%m/%d/%Y'))
+This app used to calculate salary details including Total Salary, Total Fringe, Total Indirect, and Total Cost for a specific job position over a certain period of time. The app also displays the Monthly Salary Table which contains the monthly salary, schedule, grade, and step for each month within the specified period. Furthermore, it provides a feature to dynamically calculate fringe and indirect rates based on user input.
+**NOTE: This app currently only works for schedules B and G.**
+
+## How to use
+1. **Select a Job Title**: From the dropdown, select the desired job title for which you want to calculate the salary details.
+2. **Select Start Date and End Date**: Select the start and end dates for the salary calculation. The dates are selected using a date input widget.
+3. **Enter fringe rate and indirect rate**: You are allowed to input the rates for fringe and indirect costs as decimal values from 0.0 to 1.0. The default values are 0.6524 and 0.349 respectively. You can adjust these values as per your requirement. Note that these values have a precision of 4 decimal places.
+4. After providing all the inputs, click on the **Calculate Salary Details** button. This will calculate and display the salary details including the Total Salary, Total Fringe, Total Indirect, and Total Cost for the selected job title within the specified period. The Monthly Salary Table will also be displayed, presenting the monthly salary, schedule, grade, and step for each month within the chosen period.
+Please note that if the chosen job position is eligible for a regrade, the application will automatically perform the regrade operation. For the purpose of this application, regrade is applicable for grades '06' and '07' and the regrade is assumed to occur on January 1, 2025, upgrading the grade to '08'. This regrade operation will be reflected in the salary calculations.
+""")
+
+titles = [job[0] for job in job_data]
+selected_job = st.selectbox(
+    "Select Job Title (works only on schedules B and G)", titles)
+start_date = st.date_input("Select Start Date").strftime('%m/%d/%Y')
+end_date = st.date_input("Select End Date").strftime('%m/%d/%Y')
+
+# Add input fields for fringe and indirect rates
+fringe_rate = st.number_input(
+    "Enter fringe rate (default = 0.6524)", min_value=0.0, max_value=1.0, value=0.6524, step=0.0001)
+indirect_rate = st.number_input(
+    "Enter indirect rate (default = 0.349)", min_value=0.0, max_value=1.0, value=0.349, step=0.0001)
 
 
-# personnel.populate_salary_table(salary_schedule)
-# print(personnel.salary_table)
+if st.button("Calculate Salary Details"):
+    schedule, grade, step = get_job_details(job_data, selected_job)
+    personnel = Personnel(selected_job, grade,
+                          schedule, -1, start_date, end_date)
+    personnel.regrade()
+    personnel.populate_salary_table(salary_schedule)
 
-# print(personnel.annual_salaries())
+    st.write(f"Schedule: {personnel.schedule}")
+    st.write(f"Grade: {personnel.grade}")
 
-# print(personnel.average_annual_salary())
+    st.subheader('Monthly Salary Table')
+    monthly_salary_table = pd.DataFrame.from_dict(personnel.salary_table, orient='index',
+                                                  columns=['Monthly Salary', 'Schedule', 'Grade', 'Step'])
+    monthly_salary_table.reset_index(inplace=True)
+
+    sum_annual_salaries = compute_and_display_salaries(monthly_salary_table)
+    display_salary_details(sum_annual_salaries,
+                           monthly_salary_table, fringe_rate, indirect_rate)
