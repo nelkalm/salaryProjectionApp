@@ -853,7 +853,7 @@ This app is used to calculate salary details including Total Salary, Total Fring
 2. **Select Start Date and End Date**: Select the start and end dates for the salary calculation. The dates are selected using a date input widget.
 3. **Enter fringe rate and indirect rate**: You are allowed to input the rates for fringe and indirect costs as decimal values from 0.0 to 1.0. The default values are 0.6524 and 0.349 respectively. You can adjust these values as per your requirement. Note that these values have a precision of 4 decimal places.
 4. After providing all the inputs, click on the **Calculate Salary Details** button. This will calculate and display the salary details including the Total Salary, Total Fringe, Total Indirect, and Total Cost for the selected job title within the specified period. The Monthly Salary Table will also be displayed, presenting the monthly salary, schedule, grade, and step for each month within the chosen period.
-Please note that if the chosen job position is eligible for a regrade, the application will automatically perform the regrade operation. For the purpose of this application, regrade is applicable for grades '06' and '07' and the regrade is assumed to occur on January 1, 2025, upgrading the grade to '08'. This regrade operation will be reflected in the salary calculations.
+Please note that if the chosen job position is eligible for a regrade, the application will automatically perform the regrade operation. For the purpose of this application, regrade is applicable for represented positions grades '06' and '07', and the regrade is assumed to occur on January 1, 2025, upgrading the grade to '08'. This regrade operation will be reflected in the salary calculations.
 """)
 
 col1, col2 = st.columns(2, gap="large")
