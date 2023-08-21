@@ -4,6 +4,9 @@ import pandas as pd
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
+FRINGE = 0.6281
+INDIRECT = 0.415
+
 
 job_data = [
     ("ADMIN SERVICES OFFICER I-EXCLUDED", "BX", "13", ""),
@@ -756,13 +759,13 @@ class Personnel:
 
     def calculate_annual_fringe_cost(self):
         average_annual_salary = self.average_annual_salary()
-        fringe_cost = average_annual_salary * 0.6524
+        fringe_cost = average_annual_salary * FRINGE
         return round(fringe_cost, 2)
 
     def calculate_annual_indirect_cost(self):
         average_annual_salary = self.average_annual_salary()
         fringe_cost = self.calculate_annual_fringe_cost()
-        indirect_cost = (average_annual_salary + fringe_cost) * 0.349
+        indirect_cost = (average_annual_salary + fringe_cost) * INDIRECT
         return round(indirect_cost, 2)
 
 
@@ -838,7 +841,7 @@ def display_salary_details(sum_annual_salaries, monthly_salary_table, fringe_rat
 
 st.title("Salary Projection App")
 
-st.sidebar.write("""
+st.sidebar.write(f"""
 ## About this app
 Created by **Nelson Lu**, Grants Research Specialist, City of Chicago's Department of Public Health.
 For more information, questions, or comments, please feel free to contact me [here](mailto:Nelson.Lu@cityofchicago.org).
@@ -851,7 +854,7 @@ This app is used to calculate salary details including Total Salary, Total Fring
 ## How to use
 1. **Select a Job Title**: From the dropdown, select the desired job title for which you want to calculate the salary details.
 2. **Select Start Date and End Date**: Select the start and end dates for the salary calculation. The dates are selected using a date input widget.
-3. **Enter fringe rate and indirect rate**: You are allowed to input the rates for fringe and indirect costs as decimal values from 0.0 to 1.0. The default values are 0.6524 and 0.349 respectively. You can adjust these values as per your requirement. Note that these values have a precision of 4 decimal places.
+3. **Enter fringe rate and indirect rate**: You are allowed to input the rates for fringe and indirect costs as decimal values from 0.0 to 1.0. The default values are {FRINGE} and {INDIRECT} respectively. You can adjust these values as per your requirement. Note that these values have a precision of 4 decimal places.
 4. After providing all the inputs, click on the **Calculate Salary Details** button. This will calculate and display the salary details including the Total Salary, Total Fringe, Total Indirect, and Total Cost for the selected job title within the specified period. The Monthly Salary Table will also be displayed, presenting the monthly salary, schedule, grade, and step for each month within the chosen period.
 Please note that if the chosen job position is eligible for a regrade, the application will automatically perform the regrade operation. For the purpose of this application, regrade is applicable for represented positions grades '06' and '07', and the regrade is assumed to occur on January 1, 2025, upgrading the grade to '08'. This regrade operation will be reflected in the salary calculations.
 """)
@@ -867,9 +870,9 @@ with col1:
 
     # Add input fields for fringe and indirect rates
     fringe_rate = st.number_input(
-        "Enter fringe rate (default = 0.6524)", min_value=0.0, max_value=1.0, value=0.6524, step=0.0001)
+        f"Enter fringe rate (default = {FRINGE})", min_value=0.0, max_value=1.0, value=FRINGE, step=0.0001)
     indirect_rate = st.number_input(
-        "Enter indirect rate (default = 0.349)", min_value=0.0, max_value=1.0, value=0.349, step=0.0001)
+        f"Enter indirect rate (default = {INDIRECT})", min_value=0.0, max_value=1.0, value=INDIRECT, step=0.0001)
 
 if st.button("Calculate Salary Details"):
     schedule, grade, step = get_job_details(job_data, selected_job)
